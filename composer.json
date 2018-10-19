@@ -1,0 +1,27 @@
+{
+    "name": "ceddyg/clara-event",
+    "description": "Event manager with full calendar for Clara.",
+    "keywords": ["laravel", "clara", "event", "full-calendar"],
+    "authors": [
+        {
+            "name": "CeddyG"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "~5.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "CeddyG\\ClaraEvent\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "CeddyG\\ClaraEvent\\EventServiceProvider"
+            ]
+        }
+    }
+}
