@@ -64,7 +64,7 @@
             
             <div class="box box-solid">
                 <div class="box-header with-border">
-                    <h3 class="box-title">{{ __('clara-event::planning.create_event') }}</h3>
+                    <h3 class="box-title">{{ __('clara-event::event.create_event') }}</h3>
                 </div>
                 <div class="box-body">
                     <div class="btn-group" style="width: 100%; margin-bottom: 10px;">
@@ -89,7 +89,7 @@
                         <input id="new-event" type="text" class="form-control" placeholder="Event Title">
 
                         <div class="input-group-btn">
-                            <button id="add-new-event" type="button" class="btn btn-primary btn-flat">{{ __('clara-event::planning.add') }}</button>
+                            <button id="add-new-event" type="button" class="btn btn-primary btn-flat">{{ __('clara-event::event.add') }}</button>
                         </div>
                         <p class="help-block" id="error-store"></p>
                         <!-- /btn-group -->
@@ -156,13 +156,13 @@
                         </div>
                         
                         <div class="col-sm-6">
-                            {!! BootForm::inputGroup(__('clara-event::planning.date_begin'), 'date_begin')
+                            {!! BootForm::inputGroup(__('clara-event::event.date_begin'), 'date_begin')
                                     ->type('text')
                                     ->class('timepicker form-control')
                                     ->beforeAddon('<i class="fa fa-clock-o"></i>') 
                             !!}
 
-                            {!! BootForm::inputGroup(__('clara-event::planning.date_end'), 'date_end')
+                            {!! BootForm::inputGroup(__('clara-event::event.date_end'), 'date_end')
                                     ->type('text')
                                     ->class('timepicker form-control')
                                     ->beforeAddon('<i class="fa fa-clock-o"></i>') 
@@ -323,14 +323,13 @@
                         type: 'POST',    
                         async: false,
                         data: { 
-                            'id_event': copiedEventObject.id_event, 
-                            'fk_users': $('#user').val(), 
-                            'start_planning': date.format('Y-M-D 08:00:00'),
-                            'end_planning': date.format('Y-M-D 17:00:00') 
+                            'id_event': copiedEventObject.id_event,
+                            'date_begin': date.format('Y-M-D 08:00:00'),
+                            'date_end': date.format('Y-M-D 17:00:00') 
                         },
                         success: function (response)
                         {
-                            copiedEventObject.id_planning = response.id_planning;
+                            copiedEventObject.id_event = response.id_event;
                         }
                     });
 
@@ -347,7 +346,7 @@
                 eventDrop: function(event, delta, revertFunc) {
                     var url = '';
 
-                    url = url.replace('event.id', event.id_planning);
+                    url = url.replace('event.id', event.id_event);
 
                     $.ajax
                     ({
@@ -356,8 +355,8 @@
                         data: { 
                             'id_event': event.id_event, 
                             'fk_users': $('#user').val(), 
-                            'start_planning': event.start.format('Y-M-D H:mm:00'),
-                            'end_planning': event.end.format('Y-M-D H:mm:00') 
+                            'start_event': event.start.format('Y-M-D H:mm:00'),
+                            'end_event': event.end.format('Y-M-D H:mm:00') 
                         },
                         success: function (response)
                         {

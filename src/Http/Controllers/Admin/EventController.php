@@ -2,7 +2,7 @@
 
 namespace CeddyG\ClaraEvent\Http\Controllers\Admin;
 
-use CeddyG\ClaraEvent\Http\Controllers\ContentManagerController;
+use App\Http\Controllers\ContentManagerController;
 
 use CeddyG\ClaraEvent\Repositories\EventRepository;
 
