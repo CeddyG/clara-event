@@ -26,4 +26,9 @@ class EventCategoryController extends ContentManagerController
             'message' => 'Ok'
         ], 200);
     }
+    
+    public function destroyAjax($id)
+    {
+        parent::destroy($id);
+    }
 }

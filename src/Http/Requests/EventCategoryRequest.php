@@ -26,7 +26,7 @@ class EventCategoryRequest extends FormRequest
         return [
             'id_event_category'     => 'numeric',
             'name_event_category'   => 'string|max:45',
-            'color_event_category'  => 'string|max:10',
+            'color_event_category'  => 'string|max:20',
             'created_at'            => 'string',
             'updated_at'            => 'string'
         ];

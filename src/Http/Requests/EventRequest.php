@@ -29,7 +29,7 @@ class EventRequest extends FormRequest
             'name_event'        => 'string|max:45',
             'date_begin'        => 'string',
             'date_end'          => 'string',
-            'color_event'       => 'string|max:15',
+            'color_event'       => 'string|max:20',
             'description_event' => '',
             'created_at'        => 'string',
             'updated_at'        => 'string'

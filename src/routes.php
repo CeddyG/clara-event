@@ -19,4 +19,5 @@ Route::group(['prefix' => config('clara.event-category.route.api.prefix'), 'midd
     Route::get('event-category/index/ajax', 'CeddyG\ClaraEvent\Http\Controllers\Admin\EventCategoryController@indexAjax')->name('admin.event-category.index.ajax');
 	Route::get('event-category/select/ajax', 'CeddyG\ClaraEvent\Http\Controllers\Admin\EventCategoryController@selectAjax')->name('admin.event-category.select.ajax');
     Route::post('event-category/store/ajax', 'CeddyG\ClaraEvent\Http\Controllers\Admin\EventCategoryController@storeAjax')->name('admin.event-category.store.ajax');
+    Route::delete('event-category/delete/ajax/{id}', 'CeddyG\ClaraEvent\Http\Controllers\Admin\EventCategoryController@destroyAjax')->name('admin.event-category.delete.ajax');
 });

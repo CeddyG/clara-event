@@ -40,6 +40,23 @@
             width: 16px;
             height: 16px;
         }
+        
+        .external-event
+        {
+            color: #ffffff;
+        }
+        
+        .btn-delete-category
+        {
+            color: white;
+            float: right;
+            cursor: pointer;
+        }
+        
+        #error-store
+        {
+            color: #dd4b39;
+        }
     </style>
 @stop
 
@@ -55,7 +72,15 @@
                 <div class="box-body">
                     <!-- the events -->
                     <div id="external-events">
-                        
+                        @foreach ($oCategories as $oCategory)
+                        <div class="external-event" 
+                            style="
+                                background-color: {{ $oCategory->color_event_category }}; 
+                                border-color: {{ $oCategory->color_event_category }}">
+                            {{ $oCategory->name_event_category }}
+                            <span data-id="{{ $oCategory->id_event_category }}" class="glyphicon glyphicon-trash btn-delete-category"></span>
+                        </div>
+                        @endForeach
                     </div>
                 </div>
                 <!-- /.box-body -->
@@ -91,10 +116,10 @@
                         <div class="input-group-btn">
                             <button id="add-new-event" type="button" class="btn btn-primary btn-flat">{{ __('clara-event::event.add') }}</button>
                         </div>
-                        <p class="help-block" id="error-store"></p>
                         <!-- /btn-group -->
                     </div>
                     <!-- /input-group -->
+                    <p class="help-block" id="error-store"></p>
                 </div>
             </div>
         </div>
@@ -116,7 +141,7 @@
     <div class="modal fade" id="modal-info">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-        {!! BootForm::open() !!}
+                {!! BootForm::open() !!}
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span></button>
@@ -174,7 +199,7 @@
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Fermer</button>
                     <button type="button" class="btn btn-primary">Envoyer</button>
                 </div>
-        {!! BootForm::close() !!}
+                {!! BootForm::close() !!}
             </div>
             <!-- /.modal-content -->
         </div>
@@ -214,8 +239,8 @@
                     // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
                     // it doesn't need to have a start or end
                     var eventObject = {
-                      title: $.trim($(this).text()), // use the element's text as the event title
-                      id_event: $(this).data('id')
+                        title: $.trim($(this).text()), // use the element's text as the event title
+                        id_event: $(this).data('id')
                     };
 
                     // store the Event Object in the DOM element so we can get to it later
@@ -223,9 +248,9 @@
 
                     // make the event draggable using jQuery UI
                     $(this).draggable({
-                      zIndex        : 1070,
-                      revert        : true, // will cause the event to go back to its
-                      revertDuration: 0  //  original position after the drag
+                        zIndex        : 1070,
+                        revert        : true, // will cause the event to go back to its
+                        revertDuration: 0  //  original position after the drag
                     });
 
                 });
@@ -240,6 +265,7 @@
             var d    = date.getDate(),
                 m    = date.getMonth(),
                 y    = date.getFullYear();
+                
             $('#calendar').fullCalendar({
                 locale: 'fr',
                 header    : {
@@ -254,52 +280,6 @@
                     day  : 'jour'
                 },
                 events    : '{{ route('admin.event.index.ajax') }}',
-    //                    [
-    //                {
-    //                    title          : 'All Day Event',
-    //                    start          : new Date(y, m, 1),
-    //                    backgroundColor: '#f56954', //red
-    //                    borderColor    : '#f56954' //red
-    //                },
-    //                {
-    //                    title          : 'Long Event',
-    //                    start          : new Date(y, m, d - 5),
-    //                    end            : new Date(y, m, d - 2),
-    //                    backgroundColor: '#f39c12', //yellow
-    //                    borderColor    : '#f39c12' //yellow
-    //                },
-    //                {
-    //                    title          : 'Meeting',
-    //                    start          : new Date(y, m, d, 10, 30),
-    //                    allDay         : false,
-    //                    backgroundColor: '#0073b7', //Blue
-    //                    borderColor    : '#0073b7' //Blue
-    //                },
-    //                {
-    //                    title          : 'Lunch',
-    //                    start          : new Date(y, m, d, 12, 0),
-    //                    end            : new Date(y, m, d, 14, 0),
-    //                    allDay         : false,
-    //                    backgroundColor: '#00c0ef', //Info (aqua)
-    //                    borderColor    : '#00c0ef' //Info (aqua)
-    //                },
-    //                {
-    //                    title          : 'Birthday Party',
-    //                    start          : new Date(y, m, d + 1, 19, 0),
-    //                    end            : new Date(y, m, d + 1, 22, 30),
-    //                    allDay         : false,
-    //                    backgroundColor: '#00a65a', //Success (green)
-    //                    borderColor    : '#00a65a' //Success (green)
-    //                },
-    //                {
-    //                    title          : 'Click for Google',
-    //                    start          : new Date(y, m, 28),
-    //                    end            : new Date(y, m, 29),
-    //                    url            : 'http://google.com/',
-    //                    backgroundColor: '#3c8dbc', //Primary (light-blue)
-    //                    borderColor    : '#3c8dbc' //Primary (light-blue)
-    //                }
-    //            ],
                 editable  : true,
                 droppable : true, // this allows things to be dropped onto the calendar !!!
                 drop      : function (date, allDay) { // this function is called when something is dropped
@@ -387,15 +367,19 @@
                 //Save color
                 currColor = $(this).css('color');
                 //Add color effect to button
-                $('#add-new-event').css({ 'background-color': currColor, 'border-color': currColor });
+                $('#add-new-event').css({
+                    'background-color': currColor, 
+                    'border-color': currColor 
+                });
             });
             
+            //Add a category
             $('#add-new-event').click(function (e) {
                 e.preventDefault();
                 //Get value and make sure it is not null
                 var val = $('#new-event').val();
                 if (val.length == 0) {
-                  return;
+                    return;
                 }
                 
                 $.post(
@@ -403,17 +387,21 @@
                     {
                         name_event_category: val,
                         color_event_category: currColor
-                    }
+                    },
                 )
                 .done(function(data) {
                     //Create events
                     var event = $('<div />');
                     event.css({
-                      'background-color': currColor,
-                      'border-color'    : currColor,
-                      'color'           : '#fff'
+                        'background-color': currColor,
+                        'border-color'    : currColor,
+                        'color'           : '#fff'
                     }).addClass('external-event');
-                    event.html(val);
+                    
+                    event.attr('data-id', 1);
+                    
+                    event.html(val+'<span data-id="1" class="glyphicon glyphicon-trash btn-delete-category"></span>');
+                    
                     $('#external-events').prepend(event);
 
                     //Add draggable funtionality
@@ -421,16 +409,37 @@
 
                     //Remove event from text input
                     $('#new-event').val('');
+                    
+                    $('#error-store').html('');
                 })
-                .fail(function(data){
+                .fail(function(oXhr){
                     var sMessage = '';
-            
-                    $.each(data.errors, function(index, value) {
+                    var sReturnMessage = oXhr.responseJSON;
+                    
+                    $.each(sReturnMessage.errors, function(index, value) {
                         sMessage += index+': '+value+'<br />';
                     }); 
-                    console.log(sMessage);
-                    console.log(data);
+                    
                     $('#error-store').html(sMessage);
+                });
+            });
+            
+            //Delete a category
+            $('.btn-delete-category').on('click', function(){
+                var btn = $(this);
+                var id = btn.data('id');
+                
+                var url = '{{ route('admin.event-category.delete.ajax', 'dummyId') }}';
+                url = url.replace('dummyId', id);
+
+                $.ajax
+                ({
+                    url: url,
+                    type: 'DELETE',
+                    success: function (response)
+                    {
+                        btn.closest('.external-event').remove();
+                    }
                 });
             });
         });
