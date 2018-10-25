@@ -16,19 +16,6 @@ class EventCategoryController extends ContentManagerController
         
         $this->oRepository  = $oRepository;
         $this->sRequest     = 'CeddyG\ClaraEvent\Http\Requests\EventCategoryRequest';
-    }
-    
-    public function storeAjax()
-    {
-        parent::store();
-        
-        return response()->json([
-            'message' => 'Ok'
-        ], 200);
-    }
-    
-    public function destroyAjax($id)
-    {
-        parent::destroy($id);
+        $this->sTypeRoute   = app($this->sRequest)->is('api/*') ? 'api' : 'web';
     }
 }

@@ -25,11 +25,57 @@ class EventRepository extends QueryBuilderRepository
 		'description_event'
     ];
     
+    /**
+     * List of the customs attributes.
+     * 
+     * @var array
+     */
+    protected $aCustomAttribute = [
+        'title' => [
+            'name_event',
+            'event_category.name_event_category'
+        ],
+        'type_name' => [
+            'event_category.name_event_category'
+        ],
+        'start' => [
+            'date_begin'
+        ],
+        'end' => [
+            'date_end'
+        ],
+        'color' => [
+            'color_event'
+        ]
+    ];
    
     public function event_category()
     {
         return $this->belongsTo('CeddyG\ClaraEvent\Repositories\EventCategoryRepository', 'fk_event_category');
     }
 
+    public function getTypeNameAttribute($oItem)
+    {
+        return $oItem->event_category->name_event_category;
+    }
 
+    public function getTitleAttribute($oItem)
+    {
+        return $oItem->event_category->name_event_category.' - '.$oItem->name_event;
+    }
+
+    public function getStartAttribute($oItem)
+    {
+        return $oItem->date_begin;
+    }
+
+    public function getEndAttribute($oItem)
+    {
+        return $oItem->date_end;
+    }
+
+    public function getColorAttribute($oItem)
+    {
+        return $oItem->color_event;
+    }
 }

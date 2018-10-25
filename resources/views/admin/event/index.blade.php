@@ -8,8 +8,8 @@
     {!! Html::style('bower_components/fullcalendar/dist/fullcalendar.min.css') !!}
     {!! Html::style('bower_components/fullcalendar/dist/fullcalendar.print.min.css', ['media' => 'print']) !!}
     
-    <!-- Bootstrap time Picker -->
-    {!! Html::style('adminlte/plugins/timepicker/bootstrap-timepicker.min.css') !!}
+    <!-- daterange picker -->
+    {!! Html::style('bower_components/bootstrap-daterangepicker/daterangepicker.css') !!}
     
     <style>
         .select2
@@ -67,13 +67,14 @@
             
             <div class="box box-solid">
                 <div class="box-header with-border">
-                    <h4 class="box-title">{{ __('clara-event::event.event') }}</h4>
+                    <h4 class="box-title">{{ __('clara-event::event.type_event') }}</h4>
                 </div>
                 <div class="box-body">
                     <!-- the events -->
                     <div id="external-events">
                         @foreach ($oCategories as $oCategory)
-                        <div class="external-event" 
+                        <div class="external-event"
+                            data-id="{{ $oCategory->id_event_category }}"
                             style="
                                 background-color: {{ $oCategory->color_event_category }}; 
                                 border-color: {{ $oCategory->color_event_category }}">
@@ -145,17 +146,19 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Tâche</h4>
+                    <h4 class="modal-title">{{ __('clara-event::event.event') }}</h4>
                 </div>
                 <div class="modal-body">
-
+                    {!! BootForm::hidden('id_event')->id('id_event') !!}
+                    {!! BootForm::hidden('id_event_calendar')->id('id_event_calendar') !!}
+                    {!! BootForm::text(__('clara-event::event.type_event'), 'event_type')->disable() !!}
                     {!! BootForm::text(__('clara-event::event.name_event'), 'name_event') !!}
                     {!! BootForm::textarea(__('clara-event::event.description_event'), 'description_event')->addClass('ckeditor') !!}
                     <div class="row">
                         <div class="col-sm-6">
                             <div class="form-group">
                                 {!! BootForm::label(__('clara-event::event.color_event'))->forId('color_event')->class('control-label') !!}
-                                {!! BootForm::hidden('color_event') !!}
+                                {!! BootForm::hidden('color_event')->id('color_event') !!}
 
                                 <div id="color-viewer-container">
                                     <div id="color-viewer-modal"></div>
@@ -181,23 +184,18 @@
                         </div>
                         
                         <div class="col-sm-6">
-                            {!! BootForm::inputGroup(__('clara-event::event.date_begin'), 'date_begin')
-                                    ->type('text')
-                                    ->class('timepicker form-control')
-                                    ->beforeAddon('<i class="fa fa-clock-o"></i>') 
-                            !!}
-
-                            {!! BootForm::inputGroup(__('clara-event::event.date_end'), 'date_end')
-                                    ->type('text')
-                                    ->class('timepicker form-control')
-                                    ->beforeAddon('<i class="fa fa-clock-o"></i>') 
+                            {!! BootForm::inputGroup(__('clara-event::event.date'), 'date_event')
+                                ->type('text')
+                                ->class('daterange form-control')
+                                ->beforeAddon('<i class="fa fa-calendar"></i>') 
                             !!}
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Fermer</button>
-                    <button type="button" class="btn btn-primary">Envoyer</button>
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">{{ __('general.close') }}</button>
+                    <button type="button" class="btn btn-danger" id="delete-btn">{{ __('general.delete') }}</button>
+                    <button type="button" class="btn btn-primary" id="update-btn">{{ __('general.save') }}</button>
                 </div>
                 {!! BootForm::close() !!}
             </div>
@@ -218,15 +216,22 @@
     {!! Html::script('bower_components/fullcalendar/dist/fullcalendar.min.js') !!}
     {!! Html::script('bower_components/fullcalendar/dist/locale-all.js') !!}
     
-    <!-- bootstrap time picker -->
-    {!! Html::script('adminlte/plugins/timepicker/bootstrap-timepicker.min.js') !!}
+    <!-- date-range-picker -->
+    {!! Html::script('bower_components/moment/min/moment.min.js') !!}
+    {!! Html::script('bower_components/moment/locale/fr.js') !!}
+    {!! Html::script('bower_components/bootstrap-daterangepicker/daterangepicker.js') !!}
     
     <script type="text/javascript">
         $('.select2').select2();
         
-        //Timepicker
-        $('.timepicker').timepicker({
-            showInputs: false
+        //date-range-picker
+        $('.daterange').daterangepicker({
+            timePicker: true,
+            timePicker24Hour: true,
+            drops: 'up',
+            locale: {
+                format: 'DD/MM/YYYY H:mm'
+            }
         });
         
         $(function () {
@@ -240,7 +245,8 @@
                     // it doesn't need to have a start or end
                     var eventObject = {
                         title: $.trim($(this).text()), // use the element's text as the event title
-                        id_event: $(this).data('id')
+                        type_name: $.trim($(this).text()),
+                        id_event_category: $(this).data('id')
                     };
 
                     // store the Event Object in the DOM element so we can get to it later
@@ -279,7 +285,7 @@
                     week : 'semaine',
                     day  : 'jour'
                 },
-                events    : '{{ route('admin.event.index.ajax') }}',
+                events    : '{{ route('api.admin.event.index') }}',
                 editable  : true,
                 droppable : true, // this allows things to be dropped onto the calendar !!!
                 drop      : function (date, allDay) { // this function is called when something is dropped
@@ -295,27 +301,28 @@
                     copiedEventObject.end               = date.clone().time('17:00:00');
                     copiedEventObject.allDay            = allDay;
                     copiedEventObject.backgroundColor   = $(this).css('background-color');
-                    copiedEventObject.borderColor       = $(this).css('border-color');
+                    copiedEventObject.borderColor       = $(this).css('background-color');
+                    copiedEventObject.color_event       = $(this).css('background-color');
 
                     $.ajax
                     ({
-                        url: '',
+                        url: '{{ route('api.admin.event.store') }}',
                         type: 'POST',    
                         async: false,
                         data: { 
-                            'id_event': copiedEventObject.id_event,
+                            'fk_event_category': copiedEventObject.id_event_category,
                             'date_begin': date.format('Y-M-D 08:00:00'),
-                            'date_end': date.format('Y-M-D 17:00:00') 
+                            'date_end': date.format('Y-M-D 17:00:00'), 
+                            'color_event': $(this).css('background-color') 
                         },
                         success: function (response)
                         {
-                            copiedEventObject.id_event = response.id_event;
+                            copiedEventObject.id_event = response.id;
                         }
                     });
 
                     // render the event on the calendar
-                    // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
-                    $('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
+                    $('#calendar').fullCalendar('renderEvent', copiedEventObject);
 
                     // is the "remove after drop" checkbox checked?
                     if ($('#drop-remove').is(':checked')) {
@@ -324,9 +331,9 @@
                     }
                 },
                 eventDrop: function(event, delta, revertFunc) {
-                    var url = '';
+                    var url = '{{ route('api.admin.event.update', 'dummyId') }}';
 
-                    url = url.replace('event.id', event.id_event);
+                    url = url.replace('dummyId', event.id_event);
 
                     $.ajax
                     ({
@@ -334,28 +341,96 @@
                         type: 'PUT',
                         data: { 
                             'id_event': event.id_event, 
-                            'fk_users': $('#user').val(), 
-                            'start_event': event.start.format('Y-M-D H:mm:00'),
-                            'end_event': event.end.format('Y-M-D H:mm:00') 
+                            'date_begin': event.start.format('Y-M-D H:mm:00'),
+                            'date_end': event.end.format('Y-M-D H:mm:00') 
                         },
                         success: function (response)
                         {
-                            console.log(event);
-                            console.log(response);
+                            
                         }
                     });
 
                 },
                 eventClick: function(calEvent, jsEvent, view) {
-    //                alert('Event: ' + calEvent.title);
-    //                alert('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
-    //                alert('View: ' + view.name);
-    //
-    //                // change the border color just for fun
-    //                $(this).css('border-color', 'red');
-
+                    
+                    $('#color-viewer-modal').css('background-color', calEvent.color_event);
+                    
+                    $('#id_event').val(calEvent.id_event);
+                    $('#id_event_calendar').val(calEvent._id);
+                    $('#event_type').val(calEvent.type_name);
+                    $('#name_event').val(calEvent.name_event);
+                    $('#color_event').val(calEvent.color_event);
+                    $('#date_event').data('daterangepicker').setStartDate(calEvent.start.format('D/M/Y H:mm'));
+                    $('#date_event').data('daterangepicker').setEndDate(calEvent.end.format('D/M/Y H:mm'));
+                    
+                    CKEDITOR.instances['description_event'].setData(calEvent.description_event);
+                    
                     $('#modal-info').modal();
                 }
+            });
+            
+            //Update event
+            $('#update-btn').on('click', function(){
+                var url = '{{ route('api.admin.event.update', 'dummyId') }}';
+
+                url = url.replace('dummyId', $('#id_event').val());
+                
+                $.ajax
+                ({
+                    url: url,
+                    type: 'PUT',
+                    data: { 
+                        'id_event': $('#id_event').val(), 
+                        'name_event': $('#name_event').val(),
+                        'date_begin': $('#date_event').data('daterangepicker').startDate.format('YYYY-MM-DD H:mm:00'),
+                        'date_end': $('#date_event').data('daterangepicker').endDate.format('YYYY-MM-DD H:mm:00'),
+                        'color_event': $('#color_event').val(),
+                        'description_event': CKEDITOR.instances['description_event'].getData()
+                    },
+                    success: function (response)
+                    {
+                        var aEvent = $('#calendar').fullCalendar('clientEvents', function(event){
+                            return event._id === $('#id_event_calendar').val();
+                        });
+                        
+                        var oEvent = aEvent[0];
+                        
+                        oEvent.title             = oEvent.type_name+' - '+$('#name_event').val();
+                        oEvent.name_event        = $('#name_event').val();
+                        oEvent.description_event = CKEDITOR.instances['description_event'].getData();
+                        oEvent.start             = $('#date_event').data('daterangepicker').startDate.format('YYYY-MM-DD H:mm:00');
+                        oEvent.end               = $('#date_event').data('daterangepicker').endDate.format('YYYY-MM-DD H:mm:00');
+                        oEvent.backgroundColor   = $('#color_event').val();
+                        oEvent.borderColor       = $('#color_event').val();
+                        oEvent.color_event       = $('#color_event').val();
+                        
+                        $('#calendar').fullCalendar('updateEvent', oEvent);
+                        $('#calendar').fullCalendar('refetchEvents');
+                        
+                        $('#modal-info').modal('hide');
+                    }
+                });                
+            });
+            
+            //Delete event
+            $('#delete-btn').on('click', function(){
+                var url = '{{ route('api.admin.event.destroy', 'dummyId') }}';
+                url = url.replace('dummyId', $('#id_event').val());
+
+                $.ajax
+                ({
+                    url: url,
+                    type: 'DELETE',
+                    success: function (response)
+                    {
+                        console.log($('#id_event_calendar').val());
+                        $('#calendar').fullCalendar('removeEvents', function(event){
+                            return event._id === $('#id_event_calendar').val();
+                        });
+                        
+                        $('#modal-info').modal('hide');
+                    }
+                });
             });
 
             /* ADDING EVENTS */
@@ -383,7 +458,7 @@
                 }
                 
                 $.post(
-                    '{{ route('admin.event-category.store.ajax') }}', 
+                    '{{ route('api.admin.event-category.store') }}', 
                     {
                         name_event_category: val,
                         color_event_category: currColor
@@ -398,9 +473,9 @@
                         'color'           : '#fff'
                     }).addClass('external-event');
                     
-                    event.attr('data-id', 1);
+                    event.attr('data-id', data.id);
                     
-                    event.html(val+'<span data-id="1" class="glyphicon glyphicon-trash btn-delete-category"></span>');
+                    event.html(val+'<span data-id="'+data.id+'" class="glyphicon glyphicon-trash btn-delete-category"></span>');
                     
                     $('#external-events').prepend(event);
 
@@ -425,11 +500,11 @@
             });
             
             //Delete a category
-            $('.btn-delete-category').on('click', function(){
+            $('#external-events').on('click', '.btn-delete-category', function(){
                 var btn = $(this);
                 var id = btn.data('id');
                 
-                var url = '{{ route('admin.event-category.delete.ajax', 'dummyId') }}';
+                var url = '{{ route('api.admin.event-category.destroy', 'dummyId') }}';
                 url = url.replace('dummyId', id);
 
                 $.ajax
@@ -456,12 +531,11 @@
         $('#color-chooser-modal > li > a').click(function (e) {
             e.preventDefault();
             
-            var currColor = $(this).attr('class').substring(5);
+            var currColor = $(this).css('color');
             
-            $('#color-viewer-modal').removeClass();
-            $('#color-viewer-modal').addClass('bg-'+currColor);
+            $('#color-viewer-modal').css('background-color', currColor);
             
-            $('input[name=color]').val(currColor);
+            $('input[name=color_event]').val(currColor);
         });
     </script>
 
