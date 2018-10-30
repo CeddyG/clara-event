@@ -2,6 +2,6 @@
 
 return [
     
-    'event' => 'Calendar'
+    'event' => 'clara-event::event.calendar'
     
 ];
