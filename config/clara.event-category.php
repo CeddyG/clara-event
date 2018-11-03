@@ -16,4 +16,6 @@ return [
         ]
     ],
     
+    'controller' => 'CeddyG\ClaraEvent\Http\Controllers\Admin\EventCategoryController',
+    
 ];
