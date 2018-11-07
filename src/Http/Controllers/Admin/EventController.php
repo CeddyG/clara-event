@@ -10,7 +10,7 @@ use CeddyG\ClaraEvent\Repositories\EventCategoryRepository;
 
 class EventController extends ContentManagerController
 {
-    private $oRepositoryCategory = null;
+    protected $oRepositoryCategory = null;
     
     public function __construct(EventRepository $oRepository, EventCategoryRepository $oRepositoryCategory)
     {
