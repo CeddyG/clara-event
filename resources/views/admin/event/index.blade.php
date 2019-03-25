@@ -193,9 +193,9 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">{{ __('general.close') }}</button>
-                    <button type="button" class="btn btn-danger" id="delete-btn">{{ __('general.delete') }}</button>
-                    <button type="button" class="btn btn-primary" id="update-btn">{{ __('general.save') }}</button>
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">{{ __('clara::general.close') }}</button>
+                    <button type="button" class="btn btn-danger" id="delete-btn">{{ __('clara::general.delete') }}</button>
+                    <button type="button" class="btn btn-primary" id="update-btn">{{ __('clara::general.save') }}</button>
                 </div>
                 {!! BootForm::close() !!}
             </div>
