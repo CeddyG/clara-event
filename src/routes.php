@@ -3,7 +3,7 @@
 //Event
 Route::group(['prefix' => config('clara.event.route.web.prefix'), 'middleware' => config('clara.event.route.web.middleware')], function()
 {
-    Route::resource('event', config('clara.event.controller'), ['names' => 'admin.event']);
+    Route::get('event', config('clara.event.controller').'@index')->name('admin.event.index');
 });
 
 Route::group(['prefix' => config('clara.event.route.api.prefix'), 'middleware' => config('clara.event.route.api.middleware')], function()

@@ -221,7 +221,13 @@
     {!! Html::script('bower_components/moment/locale/fr.js') !!}
     {!! Html::script('bower_components/bootstrap-daterangepicker/daterangepicker.js') !!}
     
-    <script type="text/javascript">
+    <script>
+        $.ajaxSetup({
+            headers: {
+                "Authorization": "Bearer {{ Sentinel::getUser()->api_token }}"
+            }
+        });                    
+        
         $('.select2').select2();
         
         //date-range-picker
